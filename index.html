@@ -71,6 +71,7 @@ main{flex:1;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:m
 .bar .sum b{color:var(--fg);font-family:var(--disp);font-size:18px;font-variant-numeric:tabular-nums}
 .btn{min-height:50px;padding:0 20px;border-radius:12px;font-family:var(--disp);font-weight:700;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--bg)}
 .btn.pri{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.line{background:#06c755;color:#fff;border-color:#06c755;text-decoration:none}
 .btn.sm{min-height:42px;padding:0 14px;font-size:15px}
 .btn:active{filter:brightness(.92)}
 .btn[disabled]{opacity:.45;pointer-events:none}
@@ -272,14 +273,14 @@ main.addEventListener('click',e=>{
 let confirmSup=null, showText=null;
 function renderSummary(){
   const sups=SUPS.filter(s=>supCount(s.id)>0);
-  let h=`<div class="suphead"><h2>まとめ</h2><span class="how">仕入先ごとに確認して、注文したら「注文した」を押す。履歴に残ります。</span></div>`;
+  let h=`<div class="suphead"><h2>まとめ</h2><span class="how">仕入先ごとに確認して「LINEで送る」（送り先を選んで送信）か「テキストをコピー」。注文したら「注文した」を押す。履歴に残ります。</span></div>`;
   if(!sups.length){ h+=`<div class="empty"><b>まだ何も選んでいません</b>上の仕入先を開いて、足りないものの「＋」を押してください。</div>`; main.innerHTML=h; return; }
   sups.forEach(s=>{
     const list=ITEMS.filter(i=>i.sup===s.id&&qty(i.n)>0); const ex=extrasOf(s.id);
     h+=`<div class="card" data-sup="${esc(s.id)}"><h3>${esc(s.label)}<small>${s.deadline?'締切 '+esc(s.deadline):''}</small></h3>${s.how?`<div class="how">${esc(s.how)}</div>`:''}<ol>`;
     list.forEach(i=>{ h+=`<li><span>${esc(i.name)}${i.size&&!i.step?'<span class="sz">'+esc(i.size)+'</span>':''}</span><span class="q">× ${qty(i.n)}${UNIT(i)}</span></li>`; });
     ex.forEach(([k,v])=>{ h+=`<li><span><span class="x">記入</span>${esc(v.text)}</span><span class="q"></span></li>`; });
-    h+=`</ol><div class="acts"><button class="btn sm" data-act="copy">テキストをコピー</button><button class="btn sm" data-act="back">直す</button><button class="btn sm pri" data-act="done">注文した</button><span class="note">${list.length+ex.length}品</span></div>`;
+    h+=`</ol><div class="acts"><a class="btn sm line" href="https://line.me/R/share?text=${encodeURIComponent(orderText(s.id))}" target="_blank" rel="noopener">LINEで送る</a><button class="btn sm" data-act="copy">テキストをコピー</button><button class="btn sm" data-act="back">直す</button><button class="btn sm pri" data-act="done">注文した</button><span class="note">${list.length+ex.length}品</span></div>`;
     if(showText===s.id) h+=`<textarea class="copybox" readonly id="tx-${esc(TOKEN[s.id])}">${esc(orderText(s.id))}</textarea><div class="how">コピーできない端末では、上の文を長押しして選択してください。</div>`;
     if(confirmSup===s.id) h+=`<div class="confirm"><span>${esc(s.label)}の${list.length+ex.length}品を「注文済み」にして、この一覧から消しますか？</span><button class="btn sm pri" data-act="done-yes">はい、注文した</button><button class="btn sm" data-act="done-no">やめる</button></div>`;
     h+=`</div>`;
