@@ -1,0 +1,329 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="GRAN発注"><meta name="robots" content="noindex"><style>[hidden]{display:none!important}body{margin:0}</style></head><body><title>GRAN caffe 発注</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
+<style>
+/* Layout: one-screen app. Fixed top bar with supplier chips, scrolling list below, sticky summary bar. iPad-first: 52px tap targets. */
+:root{
+  --bg:#f6f4ef; --panel:#ffffff; --fg:#1d1a16; --muted:#6f685e; --line:#e2ddd3;
+  --accent:#9a3b2c; --accent-fg:#ffffff; --soft:#f3e4df;
+  --frozen:#2b6cb0; --chill:#2f855a; --room:#8a6d1a;
+  --ok:#2f855a; --warn:#b7791f;
+  --disp:"Zen Kaku Gothic New","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;
+  --body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#17150f; --panel:#201d16; --fg:#efe9df; --muted:#a39b8e; --line:#36312a;
+  --accent:#d9705c; --accent-fg:#1a0d0a; --soft:#3a241f;
+  --frozen:#7fb3ff; --chill:#7bd3a0; --room:#e2c15a; --ok:#7bd3a0; --warn:#e2b25a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#17150f; --panel:#201d16; --fg:#efe9df; --muted:#a39b8e; --line:#36312a;
+  --accent:#d9705c; --accent-fg:#1a0d0a; --soft:#3a241f;
+  --frozen:#7fb3ff; --chill:#7bd3a0; --room:#e2c15a; --ok:#7bd3a0; --warn:#e2b25a; color-scheme:dark }
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.4;display:flex;flex-direction:column;-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand h1{font-family:var(--disp);font-weight:900;font-size:20px;margin:0;letter-spacing:.02em}
+.brand h1 small{font-weight:500;color:var(--muted);font-size:14px;margin-left:8px}
+.who{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+.who input{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;width:9em;min-height:38px}
+.mode{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--soft);color:var(--accent);white-space:nowrap}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-block:10px 12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;min-height:46px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-family:var(--disp);font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tab .n{min-width:24px;height:24px;border-radius:12px;background:var(--accent);color:var(--accent-fg);font-size:13px;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;font-variant-numeric:tabular-nums}
+.tab .n[hidden]{display:none}
+main{flex:1;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 120px;max-width:1100px;width:100%;margin:0 auto}
+.suphead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-bottom:12px}
+.suphead h2{font-family:var(--disp);font-weight:700;font-size:22px;margin:0}
+.suphead .dl{color:var(--accent);font-weight:700}
+.suphead .how{color:var(--muted);font-size:14px;width:100%}
+.search{display:flex;gap:8px;margin-bottom:12px}
+.search input{flex:1;font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-height:48px}
+.grp{margin-bottom:18px}
+.grp h3{font-family:var(--disp);font-size:14px;font-weight:700;letter-spacing:.08em;margin:0 0 6px;display:flex;align-items:center;gap:8px;color:var(--muted)}
+.grp h3 i{width:10px;height:10px;border-radius:50%;background:var(--muted);display:inline-block}
+.grp.frozen h3 i{background:var(--frozen)} .grp.chill h3 i{background:var(--chill)} .grp.room h3 i{background:var(--room)}
+.list{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-top:1px solid var(--line);min-height:64px}
+.row:first-child{border-top:0}
+.row.on{background:var(--soft)}
+.row .nm{min-width:0}
+.row .nm b{font-weight:700;font-size:18px;display:block;line-height:1.25}
+.row .nm span{display:block;color:var(--muted);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctl{display:flex;align-items:center;gap:6px}
+.ctl .last{font-size:13px;color:var(--muted);min-height:44px;padding:0 10px;border:1px dashed var(--line);border-radius:10px;display:inline-flex;align-items:center;white-space:nowrap}
+.ctl .last:active{background:var(--soft)}
+.step{display:inline-grid;grid-template-columns:52px 56px 52px;height:52px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg)}
+.step button{font-family:var(--disp);font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step button:active{background:var(--line)}
+.step output{display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.row.on .step{border-color:var(--accent)} .row.on .step output{color:var(--accent)}
+.unit{font-size:12px;color:var(--muted);width:2.2em;text-align:center}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(10px + env(safe-area-inset-bottom,0px))}
+.bar .in{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.bar .sum{font-size:15px;color:var(--muted)}
+.bar .sum b{color:var(--fg);font-family:var(--disp);font-size:18px;font-variant-numeric:tabular-nums}
+.btn{min-height:50px;padding:0 20px;border-radius:12px;font-family:var(--disp);font-weight:700;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--bg)}
+.btn.pri{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.sm{min-height:42px;padding:0 14px;font-size:15px}
+.btn:active{filter:brightness(.92)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+/* まとめ */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.card h3{font-family:var(--disp);font-size:19px;margin:0 0 2px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.card h3 small{color:var(--accent);font-size:14px;font-weight:700}
+.card .how{font-size:13px;color:var(--muted);margin-bottom:8px}
+.card ol{list-style:none;margin:0 0 12px;padding:0;border-top:1px solid var(--line)}
+.card li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:17px}
+.card li .q{font-family:var(--disp);font-weight:700;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.card li .x{font-size:12px;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:0 5px;margin-right:6px;vertical-align:2px}
+.cat{font-size:12px;color:var(--muted);background:var(--bg);padding:4px 14px;border-top:1px solid var(--line);letter-spacing:.06em}
+.list > .cat:first-child{border-top:0}
+.extra{background:var(--panel);border:1px dashed var(--accent);border-radius:14px;padding:12px 14px;margin-bottom:18px}
+.extra h3{font-family:var(--disp);font-size:16px;margin:0 0 4px}
+.extra p{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.extra form{display:flex;gap:8px}
+.extra input{flex:1;min-width:0;font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-height:50px}
+.extra ul{list-style:none;margin:10px 0 0;padding:0}
+.extra li{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line);font-size:17px}
+.extra li small{color:var(--muted);font-size:13px;margin-left:8px}
+.extra li button{min-height:44px;min-width:44px;border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--muted)}
+.card li .sz{color:var(--muted);font-size:13px;margin-left:6px}
+.card .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.card .acts .note{font-size:13px;color:var(--muted);margin-left:auto}
+.card.done{opacity:.6}
+.empty{color:var(--muted);text-align:center;padding:40px 16px;font-size:16px}
+.empty b{display:block;font-family:var(--disp);font-size:20px;color:var(--fg);margin-bottom:6px}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--soft);padding:10px 12px;border-radius:10px;margin-top:8px}
+.confirm span{font-weight:700}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:15px;z-index:9;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.hist li{grid-template-columns:auto minmax(0,1fr) auto;font-size:15px}
+.hist li .when{color:var(--muted);font-size:13px;white-space:nowrap}
+.hist li .lines{min-width:0;white-space:normal}
+.stale{font-size:13px;color:var(--warn);padding:6px 0}
+textarea.copybox{width:100%;min-height:120px;font:inherit;font-size:14px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px}
+@media (max-width:520px){ .row .nm b{font-size:16px} .step{grid-template-columns:46px 48px 46px;height:48px} .ctl .last{display:none} }
+@media (prefers-reduced-motion:reduce){ .toast{transition:none} }
+</style>
+
+<header class="top">
+  <div class="brand">
+    <h1>GRAN caffe 発注<small>閉店作業で在庫を見ながら押す</small></h1>
+    <div class="who"><label for="who">担当</label><input id="who" placeholder="名前" autocomplete="off"><span class="mode" id="mode">読み込み中</span></div>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+</header>
+<main id="main"></main>
+<div class="bar" id="bar"><div class="in">
+  <div class="sum" id="barsum">まだ何も選んでいません</div>
+  <div style="display:flex;gap:8px"><button class="btn" id="clearSup" hidden>この仕入先をクリア</button><button class="btn pri" id="goSum">まとめを見る</button></div>
+</div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script id="data" type="application/json">{"suppliers": [{"id": "マルト", "label": "マルト水谷", "deadline": "当日 朝4時まで／毎日配送", "how": "010m-pro.com で品名を検索"}, {"id": "めいらく", "label": "めいらく", "deadline": "前日 16時まで／月〜金", "how": "電話・FAXでまとめて"}, {"id": "小牧のパン屋", "label": "バンズ（小牧のパン屋）", "deadline": "3日前まで／隔週 火曜に配送", "how": "LINEで じゅんさん。10個単位。冷凍できるので多めに"}, {"id": "丸十食品（肉屋）", "label": "丸十食品（ひき肉）", "deadline": "当日 4時ごろまで／当日配送", "how": "丸十のLINE。1セット＝和牛ひき肉1.5kg＋豚粗挽き肉500g"}, {"id": "UCC", "label": "UCC（UF-Order）", "deadline": "前日 16時まで／配送 月〜金", "how": "uorder.ucot.co.jp で品名を検索"}, {"id": "八百屋", "label": "八百屋（生鮮）", "deadline": "", "how": ""}, {"id": "フェリシティー", "label": "フェリシティー（ワイン・洋酒）", "deadline": "", "how": "10/30に注文した店"}, {"id": "Amazon", "label": "Amazon", "deadline": "届くまで2〜3日", "how": ""}, {"id": "シモジマ", "label": "シモジマ（備品）", "deadline": "", "how": "通販 shimojima.jp か店頭"}, {"id": "その他", "label": "その他（ほかの店）", "deadline": "", "how": "リストにない店で買うもの。店名も一緒に書いてください"}], "items": [{"id": "マルト:キャラメルポップコーン", "sup": "マルト", "name": "キャラメルポップコーン", "pname": "ロンバート キャラメルポップコーン 115G", "cat": "おつまみ", "size": "115g", "st": "常温", "last": "", "n": 91}, {"id": "マルト:塩ゆで落花生", "sup": "マルト", "name": "塩ゆで落花生", "pname": "ニチレイ 塩ゆで落花生 500G", "cat": "おつまみ", "size": "500g", "st": "常温", "last": "2", "n": 15}, {"id": "マルト:燻製ミックスナッツ", "sup": "マルト", "name": "燻製ミックスナッツ", "pname": "Nuts Bar 燻製ミックスナッツ 500G", "cat": "おつまみ", "size": "500g", "st": "常温", "last": "", "n": 92}, {"id": "マルト:いちごソース", "sup": "マルト", "name": "いちごソース", "pname": "モナン ストロベリーフルーツミックス 1L", "cat": "シロップ", "size": "1kg", "st": "常温", "last": "", "n": 93}, {"id": "マルト:メープルシロップ", "sup": "マルト", "name": "メープルシロップ", "pname": "京都飲料 メープルシロップ パック 1L", "cat": "シロップ", "size": "1L", "st": "常温", "last": "", "n": 94}, {"id": "マルト:モナン キャラメル", "sup": "マルト", "name": "モナン キャラメル", "pname": "モナン キャラメル 700ML", "cat": "シロップ", "size": "700ml", "st": "常温", "last": "", "n": 95}, {"id": "マルト:モナン ピーチ", "sup": "マルト", "name": "モナン ピーチ", "pname": "モナン シロップ ピーチ 700ML", "cat": "シロップ", "size": "700ml", "st": "常温", "last": "", "n": 96}, {"id": "マルト:モナン マンダリンオレンジ", "sup": "マルト", "name": "モナン マンダリンオレンジ", "pname": "モナン マンダリン オレンジ 700ML", "cat": "シロップ", "size": "700ml", "st": "常温", "last": "", "n": 97}, {"id": "マルト:モヒートミントシロップ", "sup": "マルト", "name": "モヒートミントシロップ", "pname": "デニオ 1883 モヒートミント シロップ 瓶 1L", "cat": "シロップ", "size": "1L", "st": "常温", "last": "", "n": 98}, {"id": "マルト:黒みつ", "sup": "マルト", "name": "黒みつ", "pname": "タヌマ 黒みつ 1L", "cat": "シロップ", "size": "1L", "st": "常温", "last": "", "n": 99}, {"id": "マルト:すりおろしりんご（瓶）", "sup": "マルト", "name": "すりおろしりんご（瓶）", "pname": "順造選 すりおろしりんご汁 瓶 180ML", "cat": "ジュース", "size": "", "st": "常温", "last": "5", "n": 16}, {"id": "マルト:アップルジュース", "sup": "マルト", "name": "アップルジュース", "pname": "カゴメ アップルジュースHR用 1L", "cat": "ジュース", "size": "1L", "st": "常温", "last": "1", "n": 100}, {"id": "マルト:オレンジジュース", "sup": "マルト", "name": "オレンジジュース", "pname": "", "cat": "ジュース", "size": "1L", "st": "常温", "last": "", "n": 101}, {"id": "マルト:コーラ", "sup": "マルト", "name": "コーラ", "pname": "コカコーラ 缶 160ML", "cat": "ジュース", "size": "", "st": "常温", "last": "8", "n": 17}, {"id": "マルト:ジンジャーエール", "sup": "マルト", "name": "ジンジャーエール", "pname": "ウィルキンソン ドライジンジャーエール 缶 190ML", "cat": "ジュース", "size": "", "st": "常温", "last": "11", "n": 18}, {"id": "マルト:ライムジュース", "sup": "マルト", "name": "ライムジュース", "pname": "エトナ シシリー ライムジュース 100 混濁タイプ 600", "cat": "ジュース", "size": "", "st": "常温", "last": "", "n": 171}, {"id": "マルト:ラフランス（瓶）", "sup": "マルト", "name": "ラフランス（瓶）", "pname": "順造選 国産ラフランス 瓶 180ML", "cat": "ジュース", "size": "", "st": "常温", "last": "3", "n": 19}, {"id": "マルト:レッドブル", "sup": "マルト", "name": "レッドブル", "pname": "レッド ブル 缶 250ML", "cat": "ジュース", "size": "", "st": "常温", "last": "", "n": 102}, {"id": "マルト:ケイジャンシーズニング", "sup": "マルト", "name": "ケイジャンシーズニング", "pname": "", "cat": "スパイス", "size": "100g", "st": "常温", "last": "", "n": 103}, {"id": "マルト:シナモンスティック", "sup": "マルト", "name": "シナモンスティック", "pname": "ギャバン シナモンスティック 20ポン", "cat": "スパイス", "size": "20本", "st": "常温", "last": "", "n": 104}, {"id": "マルト:パセリ（みじん切り缶）", "sup": "マルト", "name": "パセリ（みじん切り缶）", "pname": "ギャバン パセリ みじん切り（缶）80G", "cat": "スパイス", "size": "80g", "st": "常温", "last": "", "n": 183}, {"id": "マルト:ブラックペッパー", "sup": "マルト", "name": "ブラックペッパー", "pname": "ギャバン ブラックペッパー ホール袋 400G", "cat": "スパイス", "size": "400g", "st": "常温", "last": "", "n": 187}, {"id": "マルト:カラメルソース", "sup": "マルト", "name": "カラメルソース", "pname": "森永 トッピングソース カラメル 560G", "cat": "ソース", "size": "560g", "st": "常温", "last": "", "n": 105}, {"id": "マルト:キャラメルシロップ", "sup": "マルト", "name": "キャラメルシロップ", "pname": "バンホーテン キャラメルシロップ 630G", "cat": "ソース", "size": "630g", "st": "常温", "last": "", "n": 176}, {"id": "マルト:グレイビーソース", "sup": "マルト", "name": "グレイビーソース", "pname": "エバラ 厨房応援団 グレイビーソース ペット 1L", "cat": "ソース", "size": "1L", "st": "常温", "last": "", "n": 174}, {"id": "マルト:サルサ", "sup": "マルト", "name": "サルサ", "pname": "カゴメ サルサ (ピリカラ) 925G", "cat": "ソース", "size": "925g", "st": "常温", "last": "1", "n": 20}, {"id": "マルト:シーザードレッシング", "sup": "マルト", "name": "シーザードレッシング", "pname": "", "cat": "ソース", "size": "1L", "st": "常温", "last": "", "n": 106}, {"id": "マルト:タルタルソース", "sup": "マルト", "name": "タルタルソース", "pname": "創味 タルタルソース 1KG", "cat": "ソース", "size": "1kg", "st": "常温", "last": "1", "n": 21}, {"id": "マルト:チョコレートソース", "sup": "マルト", "name": "チョコレートソース", "pname": "", "cat": "ソース", "size": "630g", "st": "常温", "last": "", "n": 107}, {"id": "マルト:テキサスBBQソース", "sup": "マルト", "name": "テキサスBBQソース", "pname": "ケンコー テキサススタイル バーベキューソース 600G", "cat": "ソース", "size": "600g", "st": "常温", "last": "", "n": 173}, {"id": "マルト:トリュフキノコペースト", "sup": "マルト", "name": "トリュフキノコペースト", "pname": "メニュー キノコペースト トリュフ風味 400G", "cat": "ソース", "size": "400g", "st": "常温", "last": "1", "n": 22}, {"id": "マルト:バーガーソース", "sup": "マルト", "name": "バーガーソース", "pname": "", "cat": "ソース", "size": "230g", "st": "常温", "last": "", "n": 108}, {"id": "マルト:バーボンBBQソース", "sup": "マルト", "name": "バーボンBBQソース", "pname": "ハインツ バーボンバーベキューソース ペット 590G", "cat": "ソース", "size": "590g", "st": "常温", "last": "", "n": 109}, {"id": "マルト:ブルーベリーソース", "sup": "マルト", "name": "ブルーベリーソース", "pname": "QP ごろっと果実 ブルーベリーのソース 200G", "cat": "ソース", "size": "200g", "st": "常温", "last": "", "n": 181}, {"id": "マルト:マンゴーソース", "sup": "マルト", "name": "マンゴーソース", "pname": "QP SM ごろっと果実 マンゴーのソース 200G", "cat": "ソース", "size": "200g", "st": "常温", "last": "", "n": 180}, {"id": "マルト:ミックスベリーソース", "sup": "マルト", "name": "ミックスベリーソース", "pname": "QP SM ごろっと果実 ミックスベリーのソース 200G", "cat": "ソース", "size": "200g", "st": "常温", "last": "", "n": 182}, {"id": "マルト:桃のソース", "sup": "マルト", "name": "桃のソース", "pname": "QP SM ごろっと果実 桃のソース 200G", "cat": "ソース", "size": "200g", "st": "常温", "last": "", "n": 179}, {"id": "マルト:ウィルキンソン トニック 190", "sup": "マルト", "name": "ウィルキンソン トニック 190", "pname": "ウイルキンソン トニック 190ML", "cat": "ドリンク", "size": "190ml", "st": "常温", "last": "", "n": 177}, {"id": "マルト:ピスタチオ", "sup": "マルト", "name": "ピスタチオ", "pname": "ギャバン ピスタチオ ムキミ 1KG", "cat": "ナッツ", "size": "1kg", "st": "常温", "last": "", "n": 112}, {"id": "マルト:コンデンスミルク", "sup": "マルト", "name": "コンデンスミルク", "pname": "北海道コンデンスミルク 1KG", "cat": "乳製品", "size": "1kg", "st": "常温", "last": "", "n": 190}, {"id": "マルト:キャロットラペ", "sup": "マルト", "name": "キャロットラペ", "pname": "", "cat": "惣菜", "size": "500g", "st": "常温", "last": "", "n": 117}, {"id": "マルト:サラダ油", "sup": "マルト", "name": "サラダ油", "pname": "IZ サラダ油 一斗缶 16.5KG", "cat": "油", "size": "16.5kg", "st": "常温", "last": "", "n": 118}, {"id": "マルト:ニトリル手袋 黒 M", "sup": "マルト", "name": "ニトリル手袋 黒 M", "pname": "ヘイコー ニトリルグローブ ブラック M 100マイ", "cat": "消耗品", "size": "", "st": "常温", "last": "", "n": 169}, {"id": "マルト:ニトリル手袋 黒 S", "sup": "マルト", "name": "ニトリル手袋 黒 S", "pname": "ヘイコー ニトリルグローブ ブラック S 100マイ", "cat": "消耗品", "size": "", "st": "常温", "last": "", "n": 170}, {"id": "マルト:アクアパンナ（水）", "sup": "マルト", "name": "アクアパンナ（水）", "pname": "サンペレグリノ ナチュラルミネラルウォーター アクアパンナ", "cat": "炭酸", "size": "", "st": "常温", "last": "2", "n": 23}, {"id": "マルト:サンペレグリノ（炭酸・瓶）", "sup": "マルト", "name": "サンペレグリノ（炭酸・瓶）", "pname": "サンペレグリノ 炭酸入り 瓶", "cat": "炭酸", "size": "", "st": "常温", "last": "", "n": 197}, {"id": "マルト:トニックウォーター", "sup": "マルト", "name": "トニックウォーター", "pname": "カクテス トニックウォーター ペット 500ML", "cat": "炭酸", "size": "500ml", "st": "常温", "last": "", "n": 119}, {"id": "マルト:プレミアムジンジャービア", "sup": "マルト", "name": "プレミアムジンジャービア", "pname": "フィーバーツリー ジンジャー ビア 瓶 200ML", "cat": "炭酸", "size": "", "st": "常温", "last": "6", "n": 25}, {"id": "マルト:プレミアムトニック", "sup": "マルト", "name": "プレミアムトニック", "pname": "フィーバーツリー エルダーフラワー トニックウォーター 20", "cat": "炭酸", "size": "", "st": "常温", "last": "6", "n": 26}, {"id": "マルト:レモントニック", "sup": "マルト", "name": "レモントニック", "pname": "アサヒ フィーバーツリー レモントニックウォーター 瓶 20", "cat": "炭酸", "size": "", "st": "常温", "last": "7", "n": 27}, {"id": "マルト:炭酸ガス", "sup": "マルト", "name": "炭酸ガス", "pname": "IZ 共通炭酸ガス 5KG", "cat": "炭酸", "size": "5kg", "st": "常温", "last": "", "n": 120}, {"id": "マルト:きび砂糖", "sup": "マルト", "name": "きび砂糖", "pname": "カップ印 きび砂糖 750G", "cat": "砂糖", "size": "750g", "st": "常温", "last": "", "n": 185}, {"id": "マルト:グラニュー糖", "sup": "マルト", "name": "グラニュー糖", "pname": "伊藤忠 グラニュー糖 CICーP 1KG", "cat": "砂糖", "size": "1kg", "st": "常温", "last": "3", "n": 28}, {"id": "マルト:上白糖", "sup": "マルト", "name": "上白糖", "pname": "伊藤忠 上白糖 CIS-P 1KG", "cat": "砂糖", "size": "1kg", "st": "常温", "last": "", "n": 122}, {"id": "マルト:粉糖", "sup": "マルト", "name": "粉糖", "pname": "粉糖（パウダーシュガー）NZ-1 1KG", "cat": "砂糖", "size": "1kg", "st": "常温", "last": "", "n": 123}, {"id": "マルト:ウーロン茶", "sup": "マルト", "name": "ウーロン茶", "pname": "MRI 烏龍茶 ペット 2L", "cat": "茶", "size": "2L", "st": "常温", "last": "1", "n": 29}, {"id": "マルト:コーン茶", "sup": "マルト", "name": "コーン茶", "pname": "ポッカサッポロ 業務用北海道コーン茶 紙パック 1L", "cat": "茶", "size": "", "st": "常温", "last": "1", "n": 30}, {"id": "マルト:ジャスミン茶", "sup": "マルト", "name": "ジャスミン茶", "pname": "神戸茶房 ジャスミン茶 2L", "cat": "茶", "size": "", "st": "常温", "last": "1", "n": 31}, {"id": "マルト:チャイベース", "sup": "マルト", "name": "チャイベース", "pname": "GS Chai マサラチャイベース 500ML", "cat": "茶", "size": "500ml", "st": "常温", "last": "2", "n": 32}, {"id": "マルト:バタフライピーティー", "sup": "マルト", "name": "バタフライピーティー", "pname": "守山乳業 MORIYAMA バタフライピーティー 1KG", "cat": "茶", "size": "1kg", "st": "常温", "last": "1箱", "n": 33}, {"id": "マルト:緑茶", "sup": "マルト", "name": "緑茶", "pname": "", "cat": "茶", "size": "", "st": "常温", "last": "", "n": 126}, {"id": "マルト:つぶあん", "sup": "マルト", "name": "つぶあん", "pname": "谷尾食糧 さくら庵 つぶあん(国内製造) 1KG", "cat": "製菓材料", "size": "1kg", "st": "常温", "last": "1", "n": 34}, {"id": "マルト:クーベルチュール（削りチョコ）", "sup": "マルト", "name": "クーベルチュール（削りチョコ）", "pname": "明治 クーベルダーク57G 1KG", "cat": "製菓材料", "size": "1kg", "st": "常温", "last": "", "n": 128}, {"id": "マルト:チョコクランチ", "sup": "マルト", "name": "チョコクランチ", "pname": "森永商事 チョコクランチ 500G", "cat": "製菓材料", "size": "500g", "st": "常温", "last": "", "n": 129}, {"id": "マルト:プチドリップ", "sup": "マルト", "name": "プチドリップ", "pname": "伊那食品 プチドリップ 500G", "cat": "製菓材料", "size": "500g", "st": "常温", "last": "", "n": 172}, {"id": "マルト:ロータス ビスケット", "sup": "マルト", "name": "ロータス ビスケット", "pname": "ロータス オリジナル カラメルビスケット 50P 312.5", "cat": "製菓材料", "size": "50枚", "st": "常温", "last": "", "n": 130}, {"id": "マルト:クッキングソルト", "sup": "マルト", "name": "クッキングソルト", "pname": "塩事業センター クッキングソルト 800G", "cat": "調味料", "size": "800g", "st": "常温", "last": "", "n": 131}, {"id": "マルト:ケチャップ", "sup": "マルト", "name": "ケチャップ", "pname": "カゴメ トマトケチャップ 特級チューブ 1KG", "cat": "調味料", "size": "1kg", "st": "常温", "last": "", "n": 175}, {"id": "マルト:チキンコンソメ", "sup": "マルト", "name": "チキンコンソメ", "pname": "ARIAKE チキンコンソメ 1KG", "cat": "調味料", "size": "1kg", "st": "常温", "last": "", "n": 186}, {"id": "マルト:フライドオニオン", "sup": "マルト", "name": "フライドオニオン", "pname": "トマトコーポレーション パストデコ フライドオニオン 100g", "cat": "調味料", "size": "100g", "st": "常温", "last": "", "n": 194}, {"id": "マルト:マスタード", "sup": "マルト", "name": "マスタード", "pname": "SB マスタード 500g", "cat": "調味料", "size": "500g", "st": "常温", "last": "", "n": 193}, {"id": "マルト:マヨネーズ", "sup": "マルト", "name": "マヨネーズ", "pname": "ケンコー プレーンマヨネーズ 1K", "cat": "調味料", "size": "", "st": "常温", "last": "", "n": 189}, {"id": "マルト:塩", "sup": "マルト", "name": "塩", "pname": "サーレ インテグラーレ フィーノ 1KG", "cat": "調味料", "size": "1kg", "st": "常温", "last": "", "n": 132}, {"id": "マルト:穀物酢", "sup": "マルト", "name": "穀物酢", "pname": "ミツカン 穀物酢 800ML", "cat": "調味料", "size": "800ml", "st": "常温", "last": "", "n": 184}, {"id": "マルト:精製塩", "sup": "マルト", "name": "精製塩", "pname": "塩事業センター 精製塩 1KG", "cat": "調味料", "size": "1kg", "st": "常温", "last": "", "n": 188}, {"id": "マルト:GINON ライム", "sup": "マルト", "name": "GINON ライム", "pname": "アサヒ GINON ライム ペット 1.8L", "cat": "酒", "size": "1.8L", "st": "常温", "last": "1", "n": 35}, {"id": "マルト:アマレット", "sup": "マルト", "name": "アマレット", "pname": "ディ サローノ アマレット 瓶 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 133}, {"id": "マルト:イエガー", "sup": "マルト", "name": "イエガー", "pname": "イエガーマイスター 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 134}, {"id": "マルト:ウォッカ", "sup": "マルト", "name": "ウォッカ", "pname": "ウィルキンソン ウオッカ 40° 720ML", "cat": "酒", "size": "720ml", "st": "常温", "last": "", "n": 135}, {"id": "マルト:カシス", "sup": "マルト", "name": "カシス", "pname": "デカイパー クレーム ド カシス 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 136}, {"id": "マルト:カルーア", "sup": "マルト", "name": "カルーア", "pname": "カルーアコーヒーリキュール 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "1", "n": 36}, {"id": "マルト:クエルボ 1800 アネホ", "sup": "マルト", "name": "クエルボ 1800 アネホ", "pname": "クエルボ 1800 アネホ 750ML", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 137}, {"id": "マルト:コカレロ", "sup": "マルト", "name": "コカレロ", "pname": "コカレロ リキュール 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "1", "n": 37}, {"id": "マルト:ジャスミン焼酎", "sup": "マルト", "name": "ジャスミン焼酎", "pname": "焼酎混和20°ジャスミン焼酎 茉莉花 500ML", "cat": "酒", "size": "500ml", "st": "常温", "last": "", "n": 138}, {"id": "マルト:スパークリングワイン", "sup": "マルト", "name": "スパークリングワイン", "pname": "白 ドミニオ デ ロス デュケス カヴァ ブリュット 750", "cat": "酒", "size": "750ml", "st": "常温", "last": "3箱", "n": 38}, {"id": "マルト:ダイヤメ", "sup": "マルト", "name": "ダイヤメ", "pname": "焼酎単式25°だいやめ DAIYAME 芋 720ML", "cat": "酒", "size": "720ml", "st": "常温", "last": "", "n": 139}, {"id": "マルト:ティフィン", "sup": "マルト", "name": "ティフィン", "pname": "ST ティフィンティ リキュール 750ML", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 140}, {"id": "マルト:テキーラ", "sup": "マルト", "name": "テキーラ", "pname": "", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 141}, {"id": "マルト:デュワーズ", "sup": "マルト", "name": "デュワーズ", "pname": "デュワーズ ホワイトラベル 40° 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 142}, {"id": "マルト:ニッカ フロンティア", "sup": "マルト", "name": "ニッカ フロンティア", "pname": "ニッカ フロンティア 500ML", "cat": "酒", "size": "500ml", "st": "常温", "last": "", "n": 143}, {"id": "マルト:ピーチリキュール", "sup": "マルト", "name": "ピーチリキュール", "pname": "", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 144}, {"id": "マルト:ブラックニッカ クリア", "sup": "マルト", "name": "ブラックニッカ クリア", "pname": "ブラックニッカ クリア ペット 1.8L", "cat": "酒", "size": "1.8L", "st": "常温", "last": "", "n": 145}, {"id": "マルト:マイヤーズ ラム", "sup": "マルト", "name": "マイヤーズ ラム", "pname": "マイヤーズ ラム オリジナルダーク 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 146}, {"id": "マルト:マリブ", "sup": "マルト", "name": "マリブ", "pname": "マリブ ココナッツリキュール 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 147}, {"id": "マルト:マンゴー梅酒", "sup": "マルト", "name": "マンゴー梅酒", "pname": "菊水 マンゴー梅酒 1.8L", "cat": "酒", "size": "1.8L", "st": "常温", "last": "", "n": 148}, {"id": "マルト:ライチリキュール", "sup": "マルト", "name": "ライチリキュール", "pname": "ディタ ライチ リキュール 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 149}, {"id": "マルト:レモンサワーの素", "sup": "マルト", "name": "レモンサワーの素", "pname": "アサヒ 樽ハイ倶楽部 レモンサワーの素 ペット 1.8L", "cat": "酒", "size": "1.8L", "st": "常温", "last": "", "n": 150}, {"id": "マルト:山崎梅酒 スーペリア", "sup": "マルト", "name": "山崎梅酒 スーペリア", "pname": "サントリー 山崎蒸溜所貯蔵 梅酒ブレンド スーペリア 750ML", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 151}, {"id": "マルト:樽熟成梅酒 リッチアンバー", "sup": "マルト", "name": "樽熟成梅酒 リッチアンバー", "pname": "山崎蒸留所貯蔵 樽熟成梅酒 リッチアンバー 750ML", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 178}, {"id": "マルト:生ビール（樽）", "sup": "マルト", "name": "生ビール（樽）", "pname": "アサヒ スーパードライ 樽生 10L 10L", "cat": "酒", "size": "10L", "st": "常温", "last": "", "n": 152}, {"id": "マルト:知多", "sup": "マルト", "name": "知多", "pname": "サントリー ウイスキー 知多 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 153}, {"id": "マルト:角", "sup": "マルト", "name": "角", "pname": "サントリー ウイスキー 角瓶 700ML", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 154}, {"id": "マルト:赤ワイン", "sup": "マルト", "name": "赤ワイン", "pname": "赤 フランジア ダークレッド BIB 3L", "cat": "酒", "size": "3L", "st": "常温", "last": "", "n": 155}, {"id": "マルト:飛騨りんご（瓶）", "sup": "マルト", "name": "飛騨りんご（瓶）", "pname": "寶クラフト 飛騨りんご 330ML", "cat": "酒", "size": "", "st": "常温", "last": "1", "n": 39}, {"id": "マルト:スカモルツァ（スモークチーズ）", "sup": "マルト", "name": "スカモルツァ（スモークチーズ）", "pname": "ブラッツァーレ スカモルツァ アフミカータ 1KG", "cat": "チーズ", "size": "1kg", "st": "冷蔵", "last": "1", "n": 12}, {"id": "マルト:チェダースライス", "sup": "マルト", "name": "チェダースライス", "pname": "", "cat": "チーズ", "size": "56枚", "st": "冷蔵", "last": "", "n": 110}, {"id": "マルト:パルメザン", "sup": "マルト", "name": "パルメザン", "pname": "", "cat": "チーズ", "size": "1kg", "st": "冷蔵", "last": "", "n": 111}, {"id": "マルト:オーツミルク", "sup": "マルト", "name": "オーツミルク", "pname": "マイナーフィギュアス 有機バリスタオーツミルク 1L", "cat": "乳製品", "size": "1L", "st": "冷蔵", "last": "", "n": 113}, {"id": "マルト:クリームチーズ", "sup": "マルト", "name": "クリームチーズ", "pname": "北海道クリームチーズ Luxe リュクス 1KG", "cat": "乳製品", "size": "1kg", "st": "冷蔵", "last": "1", "n": 13}, {"id": "マルト:マスカルポーネ", "sup": "マルト", "name": "マスカルポーネ", "pname": "サンモレ フレッシュマスカルポーネ 1KG", "cat": "乳製品", "size": "1kg", "st": "冷蔵", "last": "", "n": 114}, {"id": "マルト:マーガリン", "sup": "マルト", "name": "マーガリン", "pname": "雪印 ハイスノー カフェテリア マーガリン 有塩 4KG", "cat": "乳製品", "size": "4kg", "st": "冷蔵", "last": "", "n": 168}, {"id": "マルト:無塩バター", "sup": "マルト", "name": "無塩バター", "pname": "〇雪印 バター食塩不使用 450G", "cat": "乳製品", "size": "450g", "st": "冷蔵", "last": "2", "n": 14}, {"id": "マルト:オランデーズソース", "sup": "マルト", "name": "オランデーズソース", "pname": "QP 業務用オランデーズソース 1KG", "cat": "ソース", "size": "1KG", "st": "冷凍", "last": "1", "n": 0}, {"id": "マルト:エビカツ", "sup": "マルト", "name": "エビカツ", "pname": "神栄 たっぷりエビカツ 70G 50枚", "cat": "冷凍", "size": "50枚", "st": "冷凍", "last": "", "n": 115}, {"id": "マルト:オニオンリング", "sup": "マルト", "name": "オニオンリング", "pname": "ハインツ ビアバッターオニオンリング EU 500G", "cat": "冷凍", "size": "500g", "st": "冷凍", "last": "1", "n": 1}, {"id": "マルト:カットライム（冷凍）", "sup": "マルト", "name": "カットライム（冷凍）", "pname": "アスク トロピカルマリア カット ライム ベトナム産 500", "cat": "冷凍", "size": "", "st": "冷凍", "last": "1", "n": 10}, {"id": "マルト:チキンカツ", "sup": "マルト", "name": "チキンカツ", "pname": "ニチレイ フライドチキンフィレ 骨なし 75G 10マイ", "cat": "冷凍", "size": "10枚", "st": "冷凍", "last": "1", "n": 2}, {"id": "マルト:チーズボール", "sup": "マルト", "name": "チーズボール", "pname": "ハインツ チーズボール 600G", "cat": "冷凍", "size": "600g", "st": "冷凍", "last": "1", "n": 3}, {"id": "マルト:ハッシュドポテト", "sup": "マルト", "name": "ハッシュドポテト", "pname": "マッケイン テースティ テーター 1KG", "cat": "冷凍", "size": "1kg", "st": "冷凍", "last": "1", "n": 4}, {"id": "マルト:フライドポテト", "sup": "マルト", "name": "フライドポテト", "pname": "ノースイ ラムウェストン ジュリエンヌスキンオン 4LB", "cat": "冷凍", "size": "4LB", "st": "冷凍", "last": "5", "n": 5}, {"id": "マルト:ポップコーンシュリンプ", "sup": "マルト", "name": "ポップコーンシュリンプ", "pname": "石光商事 ポップコーンシュリンプ 500G", "cat": "冷凍", "size": "500g", "st": "冷凍", "last": "2", "n": 6}, {"id": "マルト:オニオンソテー50", "sup": "マルト", "name": "オニオンソテー50", "pname": "カゴメ オニオンソテー ダイス 50 中国産 1KG", "cat": "冷凍野菜", "size": "1kg", "st": "冷凍", "last": "3", "n": 7}, {"id": "マルト:とろーりやわらかたまご", "sup": "マルト", "name": "とろーりやわらかたまご", "pname": "QP SM とろーりやわらかたまご 35G 20コ", "cat": "卵", "size": "20個", "st": "冷凍", "last": "", "n": 116}, {"id": "マルト:凍結卵白", "sup": "マルト", "name": "凍結卵白", "pname": "三州 PP殺菌 凍結卵白 1KG", "cat": "卵", "size": "1kg", "st": "冷凍", "last": "2", "n": 8}, {"id": "マルト:凍結卵黄", "sup": "マルト", "name": "凍結卵黄", "pname": "QP 凍結卵黄 プレーンタイプ 1KG", "cat": "卵", "size": "1kg", "st": "冷凍", "last": "4", "n": 9}, {"id": "マルト:いちご（冷凍）", "sup": "マルト", "name": "いちご（冷凍）", "pname": "", "cat": "生鮮", "size": "1kg", "st": "冷凍", "last": "", "n": 121}, {"id": "マルト:ベーコン", "sup": "マルト", "name": "ベーコン", "pname": "丸大フード 冷凍ベーコン スライス 約2.5MM 500G", "cat": "肉", "size": "500g", "st": "冷凍", "last": "", "n": 124}, {"id": "マルト:粗挽きソーセージ", "sup": "マルト", "name": "粗挽きソーセージ", "pname": "日東ベスト JGブロッシェンソーセージ 60G 25本", "cat": "肉", "size": "25本", "st": "冷凍", "last": "", "n": 125}, {"id": "マルト:ぎゅうひ", "sup": "マルト", "name": "ぎゅうひ", "pname": "タヌマ 冷凍 ぎゅうひクレープ 白 35G 10枚", "cat": "製菓材料", "size": "10枚", "st": "冷凍", "last": "", "n": 127}, {"id": "めいらく:アサイーブレンド", "sup": "めいらく", "name": "アサイーブレンド", "pname": "", "cat": "ジュース", "size": "1L", "st": "常温", "last": "", "n": 196}, {"id": "めいらく:ザクロジュース", "sup": "めいらく", "name": "ザクロジュース", "pname": "", "cat": "ジュース", "size": "1L", "st": "常温", "last": "", "n": 43}, {"id": "めいらく:マンゴージュース", "sup": "めいらく", "name": "マンゴージュース", "pname": "", "cat": "ジュース", "size": "1L", "st": "常温", "last": "", "n": 44}, {"id": "めいらく:赤ブドウジュース", "sup": "めいらく", "name": "赤ブドウジュース", "pname": "", "cat": "ジュース", "size": "1L", "st": "常温", "last": "", "n": 195}, {"id": "めいらく:プロセスチーズ（スライス）", "sup": "めいらく", "name": "プロセスチーズ（スライス）", "pname": "", "cat": "チーズ", "size": "45枚", "st": "冷蔵", "last": "", "n": 40}, {"id": "めいらく:カスタード", "sup": "めいらく", "name": "カスタード", "pname": "", "cat": "乳製品", "size": "1kg", "st": "冷蔵", "last": "", "n": 41}, {"id": "めいらく:フレッシュ35", "sup": "めいらく", "name": "フレッシュ35", "pname": "", "cat": "乳製品", "size": "1L", "st": "冷蔵", "last": "", "n": 42}, {"id": "めいらく:ヨーグルト", "sup": "めいらく", "name": "ヨーグルト", "pname": "", "cat": "乳製品", "size": "1kg", "st": "冷蔵", "last": "", "n": 191}, {"id": "小牧のパン屋:バンズ", "sup": "小牧のパン屋", "name": "バンズ", "pname": "", "cat": "パン", "size": "10個単位", "st": "冷凍", "last": "", "n": 45, "step": 10}, {"id": "丸十食品（肉屋）:ひき肉セット", "sup": "丸十食品（肉屋）", "name": "ひき肉セット", "pname": "", "cat": "肉", "size": "和牛ひき肉1.5kg＋豚粗挽き肉500g", "st": "冷凍", "last": "", "n": 205}, {"id": "UCC:コーヒー豆", "sup": "UCC", "name": "コーヒー豆", "pname": "UCCグランゼエスプレッソ（豆）AP500g", "cat": "コーヒー", "size": "500g", "st": "常温", "last": "4", "n": 51}, {"id": "UCC:デカフェ豆", "sup": "UCC", "name": "デカフェ豆", "pname": "", "cat": "コーヒー", "size": "1kg", "st": "常温", "last": "", "n": 156}, {"id": "UCC:ガムシロップ", "sup": "UCC", "name": "ガムシロップ", "pname": "UCC ガムシロップ GT 1000ml", "cat": "シロップ", "size": "1L", "st": "常温", "last": "", "n": 52}, {"id": "UCC:ガムシロップ ポーション", "sup": "UCC", "name": "ガムシロップ ポーション", "pname": "", "cat": "シロップ", "size": "", "st": "常温", "last": "", "n": 203}, {"id": "UCC:ソフトミックス バニラ", "sup": "UCC", "name": "ソフトミックス バニラ", "pname": "日世 ソフトサーブMIXバニラ 1L", "cat": "ソフトクリーム", "size": "1L", "st": "常温", "last": "", "n": 56}, {"id": "UCC:ソフトミックス 北海道", "sup": "UCC", "name": "ソフトミックス 北海道", "pname": "日世 北海道ソフトクリームミックス 1L", "cat": "ソフトクリーム", "size": "1L", "st": "常温", "last": "", "n": 57}, {"id": "UCC:カフェソース キャラメル", "sup": "UCC", "name": "カフェソース キャラメル", "pname": "", "cat": "ソース", "size": "665g", "st": "常温", "last": "", "n": 200}, {"id": "UCC:ココア（液体）", "sup": "UCC", "name": "ココア（液体）", "pname": "", "cat": "ドリンクベース", "size": "1L", "st": "常温", "last": "", "n": 202}, {"id": "UCC:チョコレートドリンク", "sup": "UCC", "name": "チョコレートドリンク", "pname": "", "cat": "ドリンクベース", "size": "1L", "st": "常温", "last": "", "n": 201}, {"id": "UCC:濃縮レモン果汁（4倍）", "sup": "UCC", "name": "濃縮レモン果汁（4倍）", "pname": "スミダ 4Xレモン 1L", "cat": "ドリンクベース", "size": "1L", "st": "常温", "last": "", "n": 59}, {"id": "UCC:グラニュー糖（UCC）", "sup": "UCC", "name": "グラニュー糖（UCC）", "pname": "伊藤忠製糖 本グラニュー糖 CICP 1kg ポリ袋", "cat": "砂糖", "size": "1kg", "st": "常温", "last": "2", "n": 60}, {"id": "UCC:上白糖（UCC）", "sup": "UCC", "name": "上白糖（UCC）", "pname": "（相場）伊藤忠製糖 上白糖 CISP 1kg ポリ袋", "cat": "砂糖", "size": "1kg", "st": "常温", "last": "2", "n": 61}, {"id": "UCC:強力粉（RCH）", "sup": "UCC", "name": "強力粉（RCH）", "pname": "RCH 強力小麦粉 1kg", "cat": "粉", "size": "1kg", "st": "常温", "last": "3", "n": 65}, {"id": "UCC:薄力粉", "sup": "UCC", "name": "薄力粉", "pname": "RCH 薄力小麦粉 1kg", "cat": "粉", "size": "1kg", "st": "常温", "last": "3", "n": 66}, {"id": "UCC:アールグレイ ティーバッグ", "sup": "UCC", "name": "アールグレイ ティーバッグ", "pname": "霧の紅茶 アールグレイTB 40P", "cat": "茶", "size": "40個", "st": "常温", "last": "", "n": 67}, {"id": "UCC:柚子茶", "sup": "UCC", "name": "柚子茶", "pname": "ティーオーエス KOTI 柚子茶 1kg", "cat": "茶", "size": "1kg", "st": "常温", "last": "", "n": 68}, {"id": "UCC:霧の紅茶 アールグレイ無糖", "sup": "UCC", "name": "霧の紅茶 アールグレイ無糖", "pname": "霧の紅茶 アールグレイ 無糖 1000ml（N）", "cat": "茶", "size": "1L", "st": "常温", "last": "1", "n": 62}, {"id": "UCC:アーモンドスライス", "sup": "UCC", "name": "アーモンドスライス", "pname": "トン 皮付きアーモンドスライス 200g", "cat": "製菓材料", "size": "200g", "st": "常温", "last": "1", "n": 69}, {"id": "UCC:ココアパウダー", "sup": "UCC", "name": "ココアパウダー", "pname": "UCC オランダココア 袋入 300g", "cat": "製菓材料", "size": "300g", "st": "常温", "last": "", "n": 70}, {"id": "UCC:バニラエッセンス", "sup": "UCC", "name": "バニラエッセンス", "pname": "", "cat": "製菓材料", "size": "500g", "st": "常温", "last": "", "n": 157}, {"id": "UCC:牛乳", "sup": "UCC", "name": "牛乳", "pname": "お店のための 北海道牛乳 1000ML", "cat": "乳製品", "size": "1L", "st": "冷蔵", "last": "12", "n": 50}, {"id": "UCC:ミルクレープ", "sup": "UCC", "name": "ミルクレープ", "pname": "", "cat": "ケーキ", "size": "", "st": "冷凍", "last": "", "n": 204}, {"id": "UCC:レモンスライス（冷凍）", "sup": "UCC", "name": "レモンスライス（冷凍）", "pname": "トロピカルマリア トルコ産レモン・スライス 500g 冷凍", "cat": "冷凍", "size": "500g", "st": "冷凍", "last": "2", "n": 48}, {"id": "八百屋:アボカド（ホール）", "sup": "八百屋", "name": "アボカド（ホール）", "pname": "", "cat": "生鮮", "size": "", "st": "常温", "last": "", "n": 158}, {"id": "八百屋:バナナ", "sup": "八百屋", "name": "バナナ", "pname": "", "cat": "生鮮", "size": "", "st": "常温", "last": "", "n": 78}, {"id": "八百屋:卵（生）", "sup": "八百屋", "name": "卵（生）", "pname": "", "cat": "卵", "size": "", "st": "冷蔵", "last": "", "n": 71}, {"id": "八百屋:いちご（生）", "sup": "八百屋", "name": "いちご（生）", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 72}, {"id": "八百屋:りんご（生）", "sup": "八百屋", "name": "りんご（生）", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 73}, {"id": "八百屋:オレンジ（生）", "sup": "八百屋", "name": "オレンジ（生）", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 74}, {"id": "八百屋:サラダ野菜", "sup": "八百屋", "name": "サラダ野菜", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 75}, {"id": "八百屋:タイム", "sup": "八百屋", "name": "タイム", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 76}, {"id": "八百屋:トマト", "sup": "八百屋", "name": "トマト", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 77}, {"id": "八百屋:マスカット（生）", "sup": "八百屋", "name": "マスカット（生）", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 79}, {"id": "八百屋:ミント", "sup": "八百屋", "name": "ミント", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 80}, {"id": "八百屋:ライム", "sup": "八百屋", "name": "ライム", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 81}, {"id": "八百屋:レタス", "sup": "八百屋", "name": "レタス", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 82}, {"id": "八百屋:レモン（生）", "sup": "八百屋", "name": "レモン（生）", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 83}, {"id": "八百屋:生姜", "sup": "八百屋", "name": "生姜", "pname": "", "cat": "生鮮", "size": "", "st": "冷蔵", "last": "", "n": 198}, {"id": "フェリシティー:アラン 10年", "sup": "フェリシティー", "name": "アラン 10年", "pname": "", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 159}, {"id": "フェリシティー:クリュッグ グランド キュヴェ", "sup": "フェリシティー", "name": "クリュッグ グランド キュヴェ", "pname": "", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 160}, {"id": "フェリシティー:ドンペリニヨン ロゼ 2010", "sup": "フェリシティー", "name": "ドンペリニヨン ロゼ 2010", "pname": "", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 161}, {"id": "フェリシティー:ドンペリニヨン 白 2012", "sup": "フェリシティー", "name": "ドンペリニヨン 白 2012", "pname": "", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 162}, {"id": "フェリシティー:ブレット バーボン", "sup": "フェリシティー", "name": "ブレット バーボン", "pname": "", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 163}, {"id": "フェリシティー:モンキーショルダー", "sup": "フェリシティー", "name": "モンキーショルダー", "pname": "", "cat": "酒", "size": "700ml", "st": "常温", "last": "", "n": 164}, {"id": "フェリシティー:ルイ ロデレール クリスタル 2014", "sup": "フェリシティー", "name": "ルイ ロデレール クリスタル 2014", "pname": "", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 165}, {"id": "フェリシティー:ヴーヴ クリコ イエローラベル", "sup": "フェリシティー", "name": "ヴーヴ クリコ イエローラベル", "pname": "", "cat": "酒", "size": "750ml", "st": "常温", "last": "", "n": 166}, {"id": "Amazon:スモークパプリカ", "sup": "Amazon", "name": "スモークパプリカ", "pname": "", "cat": "スパイス", "size": "100g", "st": "常温", "last": "", "n": 84}, {"id": "Amazon:抹茶パウダー", "sup": "Amazon", "name": "抹茶パウダー", "pname": "", "cat": "製菓材料", "size": "1kg", "st": "常温", "last": "", "n": 85}, {"id": "シモジマ:ジンジャーシロップ", "sup": "シモジマ", "name": "ジンジャーシロップ", "pname": "", "cat": "シロップ", "size": "500ml", "st": "常温", "last": "", "n": 86}, {"id": "シモジマ:バーガー袋", "sup": "シモジマ", "name": "バーガー袋", "pname": "", "cat": "包材", "size": "100枚", "st": "常温", "last": "", "n": 88}, {"id": "シモジマ:ポテト用ナフキン", "sup": "シモジマ", "name": "ポテト用ナフキン", "pname": "", "cat": "包材", "size": "1000枚", "st": "常温", "last": "", "n": 89}, {"id": "シモジマ:GSブラックティー", "sup": "シモジマ", "name": "GSブラックティー", "pname": "", "cat": "茶", "size": "1L", "st": "常温", "last": "", "n": 90}, {"id": "その他:白州", "sup": "その他", "name": "白州", "pname": "", "cat": "酒", "size": "700ml　レイモンさんが用意", "st": "常温", "last": "", "n": 167}]}</script>
+<script>
+(function(){
+const D=JSON.parse(document.getElementById('data').textContent);
+const ITEMS=D.items, SUPS=D.suppliers;
+const BY={}; ITEMS.forEach(i=>BY[i.n]=i);
+const TOKEN={"マルト":"maruto","めいらく":"meiraku","小牧のパン屋":"buns","丸十食品（肉屋）":"marujyu","UCC":"ucc","八百屋":"yaoya","フェリシティー":"felicity","Amazon":"amazon","シモジマ":"shimojima","その他":"sonota"};
+const UNIT=(it)=>it.sup==="八百屋"?"":(it.sup==="丸十食品（肉屋）"?"セット":(it.sup==="フェリシティー"?"本":"個"));
+const STORE_LABEL={frozen:"冷凍",chill:"冷蔵",room:"常温"}; const STORE_KEY={"冷凍":"frozen","冷蔵":"chill","常温":"room"};
+
+// ---- state ----
+let cart={};          // n -> {q, by, at}
+let sent=[];          // [{id, sup, at, by, lines, text}]
+let extra={};         // id -> {sup, text, by, at}  リストにないもの（自由記入）
+let view=location.hash.replace('#','')||"maruto";
+let db=null, canWrite=null, mode="local", unsubCart=null, unsubSent=null, unsubExtra=null, loadTimer=null, stale=false;
+const who=document.getElementById('who');
+try{ who.value=localStorage.getItem('gran-who')||''; }catch(e){}
+who.addEventListener('change',()=>{ try{localStorage.setItem('gran-who',who.value.trim())}catch(e){} });
+
+function loadLocal(){ try{ cart=JSON.parse(localStorage.getItem('gran-cart')||'{}'); sent=JSON.parse(localStorage.getItem('gran-sent')||'[]'); extra=JSON.parse(localStorage.getItem('gran-extra')||'{}'); }catch(e){ cart={}; sent=[]; extra={}; } }
+function saveLocal(){ try{ localStorage.setItem('gran-cart',JSON.stringify(cart)); localStorage.setItem('gran-sent',JSON.stringify(sent.slice(0,60))); localStorage.setItem('gran-extra',JSON.stringify(extra)); }catch(e){} }
+
+// ---- db ----
+const pending={}; // n -> timer
+async function writeQty(n,q){
+  const rec=q>0?{q:q,by:who.value.trim(),at:new Date().toISOString()}:null;
+  if(rec) cart[n]=rec; else delete cart[n];
+  render();
+  if(mode!=="shared"){ saveLocal(); return; }
+  clearTimeout(pending[n]);
+  pending[n]=setTimeout(async()=>{
+    const ref=db.collection('cart').doc('i'+n);
+    try{ if(rec) await ref.set(rec); else await ref.delete(); }
+    catch(e){ if(e&&e.code==='invalid_argument'){ switchLocal('書き込みできないので、この端末だけに保存します'); } else toast('保存できませんでした。もう一度押してください'); }
+  },350);
+}
+function switchLocal(msg){ mode="local"; setMode(); if(unsubCart){unsubCart();unsubCart=null} if(unsubSent){unsubSent();unsubSent=null} if(unsubExtra){unsubExtra();unsubExtra=null} saveLocal(); if(msg) toast(msg); }
+function setMode(){ const m=document.getElementById('mode'); m.textContent= mode==="shared"?"全端末で共有":(mode==="loading"?"読み込み中":"この端末だけ"); }
+
+async function initDb(){
+  mode="loading"; setMode(); loadLocal(); render();
+  const C=(typeof window.claude==='object'&&window.claude&&typeof window.claude.use==='function')?window.claude:null;
+  db=C?await C.use('db'):null;
+  if(!db){ switchLocal(); return; }
+  const user=await C.use('user');
+  canWrite=user?(await user.can('data.write')):null;
+  if(canWrite===false){ switchLocal('共有データに書き込めないアカウントなので、この端末だけに保存します'); return; }
+  mode="shared"; cart={}; extra={}; setMode(); render();
+  loadTimer=setTimeout(()=>{ stale=true; render(); },10000);
+  unsubCart=db.collection('cart').onSnapshot(snap=>{
+    const next={}; snap.docs.forEach(d=>{ if(!d.exists) return; const n=+d.id.slice(1); const v=d.data(); if(v&&v.q>0) next[n]={q:v.q,by:v.by||'',at:v.at||''}; });
+    cart=next; if(!snap.metadata.fromCache){ clearTimeout(loadTimer); stale=false; } render();
+  },err=>{ clearTimeout(loadTimer); switchLocal('共有データにつながらないので、この端末だけに保存します'); });
+  unsubSent=db.collection('sent').orderBy('at','desc').limit(40).onSnapshot(snap=>{
+    sent=snap.docs.filter(d=>d.exists).map(d=>Object.assign({id:d.id},d.data())); render();
+  },err=>{});
+  unsubExtra=db.collection('extra').onSnapshot(snap=>{
+    const next={}; snap.docs.forEach(d=>{ if(!d.exists) return; const v=d.data(); if(v&&v.text) next[d.id]={sup:v.sup,text:v.text,by:v.by||'',at:v.at||''}; });
+    extra=next; render();
+  },err=>{});
+}
+
+// ---- helpers ----
+function qty(n){ return cart[n]?cart[n].q:0; }
+const STEP=(it)=>it.step||1;
+function extrasOf(sup){ return Object.entries(extra).filter(([k,v])=>v.sup===sup).sort((a,b)=>(a[1].at||'').localeCompare(b[1].at||'')); }
+function supCount(sup){ return ITEMS.filter(i=>i.sup===sup&&qty(i.n)>0).length+extrasOf(sup).length; }
+function totalCount(){ return Object.keys(cart).filter(n=>BY[n]).length+Object.keys(extra).length; }
+async function addExtra(sup,text){
+  const id='x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const rec={sup:sup,text:text,by:who.value.trim(),at:new Date().toISOString()};
+  extra[id]=rec; render();
+  if(mode!=="shared"){ saveLocal(); return; }
+  try{ await db.collection('extra').doc(id).set(rec); }
+  catch(e){ if(e&&e.code==='invalid_argument'){ switchLocal('書き込みできないので、この端末だけに保存します'); } else { delete extra[id]; render(); toast('保存できませんでした。もう一度押してください'); } }
+}
+async function delExtra(id){
+  delete extra[id]; render();
+  if(mode!=="shared"){ saveLocal(); return; }
+  try{ await db.collection('extra').doc(id).delete(); }catch(e){ toast('消せませんでした。もう一度押してください'); }
+}
+function fmtWhen(iso){ if(!iso) return ''; const d=new Date(iso); if(isNaN(d)) return ''; return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+let toastT; function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+function orderText(sup){
+  const s=SUPS.find(x=>x.id===sup); const lines=ITEMS.filter(i=>i.sup===sup&&qty(i.n)>0).map(i=>`・${i.name}${i.size&&!i.step?'（'+i.size+'）':''} × ${qty(i.n)}${UNIT(i)}`).concat(extrasOf(sup).map(([k,v])=>`・${v.text}`));
+  const d=new Date(); const head=`【${s.label}】発注 ${d.getMonth()+1}/${d.getDate()}${who.value.trim()?'　担当：'+who.value.trim():''}`;
+  return head+'\n'+lines.join('\n');
+}
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(text); toast('コピーしました。LINEや注文画面に貼れます'); return true; }
+  catch(e){ return false; }
+}
+
+// ---- render ----
+const tabsEl=document.getElementById('tabs'), main=document.getElementById('main');
+let filter='';
+function renderTabs(){
+  const defs=SUPS.map(s=>({t:TOKEN[s.id],label:s.label.replace(/（.*?）/,''),n:supCount(s.id)})).concat([{t:'matome',label:'まとめ',n:totalCount()},{t:'rireki',label:'履歴',n:0}]);
+  tabsEl.innerHTML=defs.map(d=>`<button class="tab" role="tab" aria-selected="${view===d.t}" data-t="${d.t}">${esc(d.label)}<span class="n" ${d.n?'':'hidden'}>${d.n}</span></button>`).join('');
+}
+tabsEl.addEventListener('click',e=>{ const b=e.target.closest('.tab'); if(!b) return; view=b.dataset.t; filter=''; render(); window.scrollTo(0,0); });
+document.getElementById('goSum').addEventListener('click',()=>{ view='matome'; render(); window.scrollTo(0,0); });
+document.getElementById('clearSup').addEventListener('click',()=>{ const sup=curSup(); if(!sup) return; ITEMS.filter(i=>i.sup===sup&&qty(i.n)>0).forEach(i=>writeQty(i.n,0)); extrasOf(sup).forEach(([k])=>delExtra(k)); toast('クリアしました'); });
+function curSup(){ const e=Object.entries(TOKEN).find(([k,v])=>v===view); return e?e[0]:null; }
+
+function renderSup(sup){
+  const s=SUPS.find(x=>x.id===sup);
+  const items=ITEMS.filter(i=>i.sup===sup&&(!filter||i.name.includes(filter)||(i.pname||'').includes(filter)));
+  const groups=[['常温','room'],['冷蔵','chill'],['冷凍','frozen']].map(([k,c])=>[k,c,items.filter(i=>i.st===k)]).filter(g=>g[2].length);
+  let h=`<div class="suphead"><h2>${esc(s.label)}</h2>${s.deadline?`<span class="dl">締切 ${esc(s.deadline)}</span>`:''}${s.how?`<span class="how">${esc(s.how)}</span>`:''}</div>`;
+  if(items.length>12||filter) h+=`<div class="search"><input id="q" placeholder="品名で探す" value="${esc(filter)}" autocomplete="off"></div>`;
+  if(stale&&mode==='shared') h+=`<div class="stale">共有データにまだつながっていません。表示が古いかもしれません。</div>`;
+  groups.forEach(([k,c,list])=>{
+    h+=`<section class="grp ${c}"><h3><i></i>${k}</h3><div class="list">`;
+    let lastCat=null; const many=list.length>8;
+    list.forEach(i=>{ const q=qty(i.n); const showP=i.pname;
+      if(many&&i.cat!==lastCat){ h+=`<div class="cat">${esc(i.cat||'')}</div>`; lastCat=i.cat; }
+      h+=`<div class="row ${q?'on':''}" data-n="${i.n}"><div class="nm"><b>${esc(i.name)}</b><span>${i.size?esc(i.size)+'　':''}${showP?esc(i.pname):''}${q&&cart[i.n].by?'　'+esc(cart[i.n].by)+'が選択':''}</span></div>
+      <div class="ctl">${i.last?`<button class="last" data-last="${esc(i.last)}" title="前回と同じ数にする">前回 ${esc(i.last)}</button>`:''}<div class="step"><button data-d="-1" aria-label="減らす">−</button><output>${q}</output><button data-d="1" aria-label="増やす">＋</button></div><span class="unit">${UNIT(i)}</span></div></div>`;
+    });
+    h+=`</div></section>`;
+  });
+  if(!items.length&&filter) h+=`<div class="empty">該当する品がありません。下の「リストにないもの」に書けます</div>`;
+  const ex=extrasOf(sup);
+  h+=`<section class="extra"><h3>リストにないもの</h3><p>品名と数を書いて「追加」。例：オリーブ 2缶${sup==='その他'?'（店名も）':''}</p><form id="exf" autocomplete="off"><input id="ext" placeholder="品名と数" enterkeyhint="done"><button class="btn pri" type="submit">追加</button></form>`;
+  if(ex.length) h+=`<ul>${ex.map(([k,v])=>`<li><span>${esc(v.text)}${v.by?`<small>${esc(v.by)}</small>`:''}</span><button data-xdel="${esc(k)}" aria-label="消す">消す</button></li>`).join('')}</ul>`;
+  h+=`</section>`;
+  main.innerHTML=h;
+  const f=document.getElementById('exf'); f.addEventListener('submit',e=>{ e.preventDefault(); const t=document.getElementById('ext'); const v=t.value.trim(); if(!v) return; addExtra(sup,v); toast('追加しました'); });
+  const qi=document.getElementById('q'); if(qi){ qi.addEventListener('input',()=>{ filter=qi.value.trim(); const pos=qi.selectionStart; renderSup(sup); const q2=document.getElementById('q'); if(q2){q2.focus(); q2.setSelectionRange(pos,pos);} }); }
+}
+main.addEventListener('click',e=>{
+  const xd=e.target.closest('[data-xdel]'); if(xd){ delExtra(xd.dataset.xdel); return; }
+  const row=e.target.closest('.row'); if(!row) return; const n=+row.dataset.n; const it=BY[n];
+  const d=e.target.closest('[data-d]'); const last=e.target.closest('[data-last]');
+  if(d){ writeQty(n,Math.max(0,qty(n)+(+d.dataset.d)*STEP(it))); return; }
+  if(last){ const v=parseFloat(last.dataset.last)||1; writeQty(n,qty(n)===v?0:v); return; }
+  if(e.target.closest('.nm')){ writeQty(n,qty(n)?0:STEP(it)); }
+});
+
+let confirmSup=null, showText=null;
+function renderSummary(){
+  const sups=SUPS.filter(s=>supCount(s.id)>0);
+  let h=`<div class="suphead"><h2>まとめ</h2><span class="how">仕入先ごとに確認して、注文したら「注文した」を押す。履歴に残ります。</span></div>`;
+  if(!sups.length){ h+=`<div class="empty"><b>まだ何も選んでいません</b>上の仕入先を開いて、足りないものの「＋」を押してください。</div>`; main.innerHTML=h; return; }
+  sups.forEach(s=>{
+    const list=ITEMS.filter(i=>i.sup===s.id&&qty(i.n)>0); const ex=extrasOf(s.id);
+    h+=`<div class="card" data-sup="${esc(s.id)}"><h3>${esc(s.label)}<small>${s.deadline?'締切 '+esc(s.deadline):''}</small></h3>${s.how?`<div class="how">${esc(s.how)}</div>`:''}<ol>`;
+    list.forEach(i=>{ h+=`<li><span>${esc(i.name)}${i.size&&!i.step?'<span class="sz">'+esc(i.size)+'</span>':''}</span><span class="q">× ${qty(i.n)}${UNIT(i)}</span></li>`; });
+    ex.forEach(([k,v])=>{ h+=`<li><span><span class="x">記入</span>${esc(v.text)}</span><span class="q"></span></li>`; });
+    h+=`</ol><div class="acts"><button class="btn sm" data-act="copy">テキストをコピー</button><button class="btn sm" data-act="back">直す</button><button class="btn sm pri" data-act="done">注文した</button><span class="note">${list.length+ex.length}品</span></div>`;
+    if(showText===s.id) h+=`<textarea class="copybox" readonly id="tx-${esc(TOKEN[s.id])}">${esc(orderText(s.id))}</textarea><div class="how">コピーできない端末では、上の文を長押しして選択してください。</div>`;
+    if(confirmSup===s.id) h+=`<div class="confirm"><span>${esc(s.label)}の${list.length+ex.length}品を「注文済み」にして、この一覧から消しますか？</span><button class="btn sm pri" data-act="done-yes">はい、注文した</button><button class="btn sm" data-act="done-no">やめる</button></div>`;
+    h+=`</div>`;
+  });
+  main.innerHTML=h;
+}
+main.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return; const card=b.closest('.card'); const sup=card&&card.dataset.sup; const act=b.dataset.act;
+  if(act==='copy'){ const ok=await copyText(orderText(sup)); if(!ok){ showText=sup; renderSummary(); const t=document.getElementById('tx-'+TOKEN[sup]); if(t){t.focus();t.select();} } return; }
+  if(act==='back'){ view=TOKEN[sup]; render(); window.scrollTo(0,0); return; }
+  if(act==='done'){ confirmSup=sup; renderSummary(); return; }
+  if(act==='done-no'){ confirmSup=null; renderSummary(); return; }
+  if(act==='done-yes'){ confirmSup=null; await markSent(sup); return; }
+});
+async function markSent(sup){
+  const list=ITEMS.filter(i=>i.sup===sup&&qty(i.n)>0); const ex=extrasOf(sup);
+  const rec={sup:sup,at:new Date().toISOString(),by:who.value.trim(),lines:list.map(i=>({name:i.name,q:qty(i.n),unit:UNIT(i)})).concat(ex.map(([k,v])=>({name:v.text,q:'',unit:''}))),text:orderText(sup)};
+  if(mode==='shared'){
+    try{ await db.collection('sent').add(rec); for(const i of list){ delete cart[i.n]; await db.collection('cart').doc('i'+i.n).delete(); } for(const [k] of ex){ delete extra[k]; await db.collection('extra').doc(k).delete(); } }
+    catch(err){ toast('保存できませんでした。もう一度押してください'); render(); return; }
+  }else{ sent.unshift(Object.assign({id:'l'+Date.now()},rec)); list.forEach(i=>delete cart[i.n]); ex.forEach(([k])=>delete extra[k]); saveLocal(); }
+  toast(SUPS.find(s=>s.id===sup).label+'を注文済みにしました'); render();
+}
+function renderHistory(){
+  let h=`<div class="suphead"><h2>履歴</h2><span class="how">「注文した」を押した記録。新しい順。</span></div>`;
+  if(!sent.length){ h+=`<div class="empty"><b>まだ履歴がありません</b>まとめで「注文した」を押すとここに残ります。</div>`; main.innerHTML=h; return; }
+  h+=`<div class="card hist"><ol>`;
+  sent.forEach(r=>{ const s=SUPS.find(x=>x.id===r.sup); h+=`<li><span class="when">${esc(fmtWhen(r.at))}<br>${esc(r.by||'')}</span><span class="lines"><b>${esc(s?s.label:r.sup)}</b><br>${(r.lines||[]).map(l=>esc(l.name)+(l.q!==''&&l.q!=null?'×'+esc(l.q)+esc(l.unit||''):'')).join('、')}</span><button class="btn sm" data-hcopy="${esc(r.id)}">コピー</button></li>`; });
+  h+=`</ol></div>`; main.innerHTML=h;
+}
+main.addEventListener('click',async e=>{ const b=e.target.closest('[data-hcopy]'); if(!b) return; const r=sent.find(x=>x.id===b.dataset.hcopy); if(r){ const ok=await copyText(r.text||''); if(!ok) toast('この端末ではコピーできません'); } });
+
+function render(){
+  renderTabs();
+  const sup=curSup();
+  if(view==='matome') renderSummary(); else if(view==='rireki') renderHistory(); else if(sup) renderSup(sup); else { view='maruto'; renderSup('マルト'); }
+  const t=totalCount(); const bs=document.getElementById('barsum');
+  if(sup){ const c=supCount(sup); bs.innerHTML= c?`${esc(SUPS.find(s=>s.id===sup).label.replace(/（.*?）/,''))} <b>${c}</b> 品　／　全体 <b>${t}</b> 品`:`この仕入先はまだ0品　／　全体 <b>${t}</b> 品`; document.getElementById('clearSup').hidden=!c; }
+  else { bs.innerHTML= t?`選んだ品 <b>${t}</b>`:'まだ何も選んでいません'; document.getElementById('clearSup').hidden=true; }
+  document.getElementById('goSum').hidden=(view==='matome');
+}
+window.addEventListener('hashchange',()=>{ const v=location.hash.replace('#',''); if(v){ view=v; render(); } });
+render();
+initDb();
+})();
+</script>
+</body></html>
